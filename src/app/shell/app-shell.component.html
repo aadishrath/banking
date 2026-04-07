@@ -1,0 +1,41 @@
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>Aadish Bank</h1>
+    </div>
+
+    <nav class="nav">
+      @for (item of navigation(); track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" class="nav-link">{{ item.label }}</a>
+      }
+    </nav>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h2>{{ firstName() }}, here is today’s {{ roleLabel() }} workspace snapshot.</h2>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="profile-card profile-card--header">
+          <div class="avatar">{{ store.profile().initials }}</div>
+          <div class="profile-copy">
+            <strong>{{ store.profile().name }}</strong>
+            <p>{{ store.profile().membership }}</p>
+            <span class="last-login">
+              Last login:
+              {{ store.session().lastLoginAt ? (store.session().lastLoginAt | date: 'MMM d, y h:mm a') : 'Pending' }}
+            </span>
+          </div>
+          <button type="button" class="ghost-button" (click)="logout()">Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <router-outlet />
+  </main>
+
+  <app-chatbot-panel />
+</div>

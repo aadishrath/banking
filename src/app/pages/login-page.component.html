@@ -1,0 +1,53 @@
+<section class="login-page">
+  <div class="intro">
+    <p class="eyebrow">Angular 19 mock banking app</p>
+    <h1>Move money, manage cards, and audit every action.</h1>
+    <p>
+      This rebuild mirrors the reference banking demo, but adds a persistent activity ledger,
+      richer account workflows, and a chatbot that can execute user requests inside the app.
+    </p>
+
+    <div class="highlights">
+      <article><strong>Signal store</strong><span>Accounts, chat, and activity stay in sync through Angular signals.</span></article>
+      <article><strong>Role aware</strong><span>Admin, customer, and company users each get different permissions and navigation.</span></article>
+      <article><strong>Task assistant</strong><span>Chatbot abilities now change based on the signed-in user role.</span></article>
+    </div>
+  </div>
+
+  <form class="login-card" [formGroup]="form" (ngSubmit)="submit()">
+    <p class="eyebrow">Secure sign-in</p>
+    <h2>Welcome back</h2>
+    <label>Username<input type="text" formControlName="username" /></label>
+    <label>
+      Password
+      <div class="password-field">
+        <input [type]="showPassword() ? 'text' : 'password'" formControlName="password" />
+        <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+          {{ showPassword() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+    </label>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit">Enter workspace</button>
+
+    <div class="credentials">
+      <strong>Demo accounts</strong>
+      @for (user of demoUsers(); track user.username) {
+        <div class="credential-row">
+          <button
+            type="button"
+            class="role-select"
+            (click)="selectDemoUser(user.username, user.password)"
+          >
+            {{ user.role }}
+          </button>
+          <span><strong>{{ user.username }}</strong> / {{ user.password }}</span>
+        </div>
+      }
+    </div>
+  </form>
+</section>

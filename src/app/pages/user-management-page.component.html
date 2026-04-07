@@ -1,0 +1,136 @@
+<section class="user-grid">
+  <article class="panel create-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Workspace access</p>
+        <h3>{{ isEditing() ? 'Edit user' : 'Add user' }}</h3>
+      </div>
+      <div class="heading-actions">
+        <p class="muted small">
+          {{ isEditing()
+            ? 'Update role, profile details, permissions, or reset the password.'
+            : 'Create a user, choose a role, and assign the permissions they should start with.' }}
+        </p>
+        @if (isEditing()) {
+          <button type="button" class="ghost-button" (click)="startCreate()">New user</button>
+        }
+      </div>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submitUser()" class="user-form">
+      <label class="field">
+        <span>Username</span>
+        <input
+          type="text"
+          formControlName="username"
+          [placeholder]="isEditing() ? '' : 'new.user'"
+        />
+      </label>
+
+      <label class="field">
+        <span>{{ isEditing() ? 'Reset password' : 'Password' }}</span>
+        <input
+          type="password"
+          formControlName="password"
+          [placeholder]="isEditing() ? 'Leave blank to keep current password' : 'Temporary password'"
+        />
+      </label>
+
+      <label class="field">
+        <span>Full name</span>
+        <input type="text" formControlName="name" placeholder="Full name" />
+      </label>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" formControlName="email" placeholder="name@example.com" />
+      </label>
+
+      <label class="field">
+        <span>Role</span>
+        <select formControlName="role" (change)="onRoleChange(form.controls.role.value)">
+          @for (role of allowedRoles(); track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Organization</span>
+        <input type="text" formControlName="organization" placeholder="Optional company name" />
+      </label>
+
+      <div class="field field-full">
+        <span>Assigned permissions</span>
+        <div class="permission-pills">
+          @for (permission of assignablePermissions(); track permission) {
+            <button
+              type="button"
+              class="permission-pill"
+              [class.selected]="selectedPermissions().includes(permission)"
+              (click)="togglePermission(permission)"
+            >
+              {{ permissionText(permission) }}
+            </button>
+          }
+        </div>
+      </div>
+
+      @if (feedback(); as message) {
+        <p class="feedback" [class.error]="message.type === 'error'">{{ message.text }}</p>
+      }
+
+      <div class="actions">
+        <button type="submit" class="save-button" [disabled]="saving()">
+          {{ saving() ? (isEditing() ? 'Saving...' : 'Creating...') : (isEditing() ? 'Save changes' : 'Create user') }}
+        </button>
+      </div>
+    </form>
+  </article>
+
+  <article class="panel list-panel">
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Existing accounts</p>
+        <h3>Managed users</h3>
+      </div>
+      <p class="muted small">{{ users().length }} users available to manage</p>
+    </div>
+
+    @if (loading()) {
+      <p class="muted">Loading users...</p>
+    } @else {
+      <div class="user-list">
+        @for (user of users(); track user.id) {
+          <article class="user-card" [class.editing]="editingUserId() === user.id">
+            <div class="user-card-top">
+              <div>
+                <h4>{{ user.profile.name }}</h4>
+                <p>{{ user.username }} · {{ user.role }}</p>
+              </div>
+              <div class="card-actions">
+                <button type="button" class="ghost-button" (click)="beginEdit(user)">Edit</button>
+                <button
+                  type="button"
+                  class="ghost-button danger"
+                  [disabled]="removingId() === user.id"
+                  (click)="removeUser(user)"
+                >
+                  {{ removingId() === user.id ? 'Removing...' : 'Remove' }}
+                </button>
+              </div>
+            </div>
+
+            <p class="muted">{{ user.profile.email }}</p>
+
+            <div class="permission-pills compact">
+              @for (permission of user.permissions; track permission) {
+                <span class="permission-pill compact-pill">{{ permissionText(permission) }}</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </article>
+</section>

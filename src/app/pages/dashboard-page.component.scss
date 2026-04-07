@@ -1,0 +1,160 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.panel {
+  min-width: 0;
+  padding: 1.4rem;
+  border-radius: 1.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.hero {
+  grid-column: span 6;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+
+.hero h3,
+.stat strong {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  margin: 0.25rem 0;
+}
+
+.hero-actions,
+.section-heading,
+.account-card__top,
+.activity-row,
+.activity-meta,
+.insight-cards {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.solid-link,
+.ghost-link,
+.section-heading a {
+  text-decoration: none;
+  color: var(--text);
+}
+
+.solid-link,
+.ghost-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 8rem;
+  padding: 0.85rem 1rem;
+  border-radius: 999px;
+}
+
+.solid-link {
+  background: linear-gradient(135deg, #f97316, #ef4444);
+}
+
+.ghost-link {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.stat {
+  grid-column: span 3;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.stat strong,
+.stat span,
+.stat .eyebrow {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.account-stack {
+  grid-column: span 7;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+}
+
+.account-card {
+  min-height: 180px;
+  padding: 1rem;
+  border-radius: 1.35rem;
+  display: grid;
+  align-content: space-between;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.activity-preview {
+  grid-column: span 5;
+}
+
+.activity-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.activity-row {
+  align-items: start;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.activity-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.activity-row p,
+.activity-row strong {
+  margin: 0;
+}
+
+.activity-meta {
+  flex-direction: column;
+  align-items: end;
+}
+
+.insights {
+  grid-column: span 12;
+}
+
+.insight-cards article,
+.placeholder-card {
+  flex: 1;
+  padding: 1rem;
+  border-radius: 1.2rem;
+  background: rgba(30, 41, 59, 0.8);
+}
+
+@media (max-width: 1080px) {
+  .hero,
+  .stat,
+  .account-stack,
+  .activity-preview,
+  .insights {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 720px) {
+  .hero,
+  .hero-actions,
+  .section-heading,
+  .activity-row,
+  .activity-meta,
+  .insight-cards {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,0 +1,103 @@
+<section class="payments-grid">
+  @if (store.can('make_transfer')) {
+    <article class="panel">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Internal transfer</p>
+          <h3>Move money between deposit accounts.</h3>
+        </div>
+      </div>
+
+      <form [formGroup]="transferForm" (ngSubmit)="submitTransfer()" class="form-grid">
+        <label>
+          From account
+          <select formControlName="fromId">
+            @for (account of depositAccounts(); track account.id) {
+              <option [value]="account.id">{{ account.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          To account
+          <select formControlName="toId">
+            @for (account of depositAccounts(); track account.id) {
+              <option [value]="account.id">{{ account.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Amount
+          <input type="number" min="1" step="0.01" formControlName="amount" />
+        </label>
+
+        <label>
+          Note
+          <input type="text" formControlName="note" />
+        </label>
+
+        <button type="submit">Complete transfer</button>
+      </form>
+    </article>
+  }
+
+  <article class="panel">
+    @if (card(); as activeCard) {
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Credit card tools</p>
+          <h3>{{ activeCard.name }}</h3>
+        </div>
+        <span class="subtle">{{ activeCard.status }}</span>
+      </div>
+
+      <div class="detail-card">
+        <span>Outstanding balance</span>
+        <strong>{{ activeCard.balance | currency }}</strong>
+        <span>Available credit {{ activeCard.available | currency }}</span>
+      </div>
+
+      <form [formGroup]="paymentForm" (ngSubmit)="submitPayment()" class="form-grid">
+        <label>
+          Funding account
+          <select formControlName="fromId">
+            @for (account of depositAccounts(); track account.id) {
+              <option [value]="account.id">{{ account.name }}</option>
+            }
+          </select>
+        </label>
+
+        <label>
+          Payment amount
+          <input type="number" min="1" step="0.01" formControlName="amount" />
+        </label>
+
+        <label class="full-width">
+          Note
+          <input type="text" formControlName="note" />
+        </label>
+
+        <button type="submit">Pay card</button>
+      </form>
+
+      @if (store.can('freeze_card')) {
+        <button type="button" class="security-button" (click)="toggleCardFreeze()">
+          {{ activeCard.status === 'frozen' ? 'Unfreeze card' : 'Freeze card' }}
+        </button>
+      } @else {
+        <p class="permission-note">Your role can view card balances, but card security controls are restricted.</p>
+      }
+    } @else {
+      <div class="detail-card">
+        <span>Role-aware feature visibility</span>
+        <strong>No retail card tools</strong>
+        <span>This role uses treasury and operating accounts instead of a personal credit card.</span>
+      </div>
+    }
+  </article>
+
+  @if (resultMessage()) {
+    <article class="result-banner">{{ resultMessage() }}</article>
+  }
+</section>

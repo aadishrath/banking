@@ -1,0 +1,155 @@
+<section class="profile-grid">
+  <article class="panel form-panel">
+    <div class="profile-summary">
+      <div class="avatar">{{ store.profile().initials }}</div>
+      <div class="hero-copy">
+        <p class="eyebrow">{{ store.role() === 'company' ? 'Company profile' : 'Client profile' }}</p>
+        <h3>{{ store.profile().name }}</h3>
+        <p>{{ store.profile().membership }} based in {{ store.profile().location }}</p>
+        @if (store.profile().organization) {
+          <p>{{ store.profile().organization }}</p>
+        }
+        <span class="status-chip" [class.locked]="!canEditProfile()">
+          {{ canEditProfile() ? 'Editable profile access' : 'View only profile access' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="panel-heading">
+      <div>
+        <p class="eyebrow">Identity details</p>
+        <h3>Profile settings</h3>
+      </div>
+      @if (!canEditProfile()) {
+        <p class="muted small">Your role can view these details, but editing is disabled.</p>
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="saveProfile()" class="profile-form">
+      <label class="field field-full">
+        <span>Username</span>
+        <input type="text" formControlName="username" readonly />
+      </label>
+
+      <label class="field">
+        <span>Name</span>
+        <input type="text" formControlName="name" placeholder="Full name" />
+      </label>
+
+      <label class="field">
+        <span>Email</span>
+        <input type="email" formControlName="email" placeholder="name@example.com" />
+      </label>
+
+      <label class="field field-full">
+        <span>Address</span>
+        <input type="text" formControlName="address" placeholder="Street, city, state, zip" />
+      </label>
+
+      <label class="field">
+        <span>Phone number</span>
+        <input type="tel" formControlName="phoneNumber" placeholder="(555) 555-5555" />
+      </label>
+
+      <label class="field">
+        <span>Password</span>
+        <input type="password" formControlName="password" placeholder="Leave blank to keep current password" />
+      </label>
+
+      <label class="toggle-row field-full">
+        <div>
+          <span>Two-factor authentication</span>
+          <p class="muted small">Add a simple extra login check for this account.</p>
+        </div>
+        <input type="checkbox" formControlName="twoFactorEnabled" />
+      </label>
+
+      @if (feedback(); as message) {
+        <p class="feedback" [class.error]="message.type === 'error'">{{ message.text }}</p>
+      }
+
+      <div class="actions">
+        <button type="submit" class="save-button" [disabled]="saving() || !canEditProfile()">
+          {{ saving() ? 'Saving...' : 'Save profile changes' }}
+        </button>
+      </div>
+    </form>
+
+    <section class="permissions-section">
+      <div class="permission-header">
+        <div>
+          <p class="eyebrow">Role permissions</p>
+          <h3>Assigned access</h3>
+        </div>
+        @if (!canManagePermissions()) {
+          <p class="muted small">Only users with permission management access can change these pills.</p>
+        }
+      </div>
+
+      <div
+        class="permission-zone"
+        [class.editable]="canManagePermissions()"
+        (dragover)="allowPermissionDrop($event)"
+        (drop)="dropOnAssigned($event)"
+      >
+        @for (permission of assignedPermissions(); track permission) {
+          <button
+            type="button"
+            class="permission-pill assigned"
+            [class.clickable]="canManagePermissions()"
+            [draggable]="canManagePermissions()"
+            (dragstart)="startDrag(permission)"
+            (dragend)="clearDrag()"
+            (click)="removePermission(permission)"
+          >
+            <span>{{ displayPermission(permission) }}</span>
+            @if (canManagePermissions()) {
+              <span class="pill-action-icon" aria-hidden="true">-</span>
+            }
+          </button>
+        }
+      </div>
+
+      @if (canManagePermissions()) {
+        <div class="permission-header secondary">
+          <div>
+            <p class="eyebrow">Suggested permissions</p>
+            <p class="muted small">Click a pill to add it, or drag it into the assigned row above.</p>
+          </div>
+        </div>
+
+        <div
+          class="permission-zone suggested"
+          (dragover)="allowPermissionDrop($event)"
+          (drop)="dropOnSuggested($event)"
+        >
+          @for (permission of availablePermissions(); track permission) {
+            <button
+              type="button"
+              class="permission-pill suggested-pill clickable"
+              draggable="true"
+              (dragstart)="startDrag(permission)"
+              (dragend)="clearDrag()"
+              (click)="addPermission(permission)"
+            >
+              <span>{{ displayPermission(permission) }}</span>
+              <span class="pill-action-icon" aria-hidden="true">+</span>
+            </button>
+          }
+        </div>
+      }
+
+      @if (permissionFeedback(); as message) {
+        <p class="feedback" [class.error]="message.type === 'error'">{{ message.text }}</p>
+      }
+
+      @if (canManagePermissions()) {
+        <div class="actions permissions-actions">
+          <button type="button" class="save-button" [disabled]="permissionSaving()" (click)="savePermissions()">
+            {{ permissionSaving() ? 'Saving...' : 'Save permission changes' }}
+          </button>
+        </div>
+      }
+    </section>
+  </article>
+</section>

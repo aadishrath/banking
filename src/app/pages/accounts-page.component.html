@@ -1,0 +1,58 @@
+<section class="accounts-layout">
+  <article class="panel">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Accounts overview</p>
+        <h3>Choose an account to inspect recent transactions.</h3>
+      </div>
+    </div>
+
+    <div class="account-list">
+      @for (account of store.accounts(); track account.id) {
+        <button type="button" class="account-item" [class.active]="activeId() === account.id" (click)="activeId.set(account.id)">
+          <span class="accent" [style.background]="account.accent"></span>
+          <div>
+            <strong>{{ account.name }}</strong>
+            <p>{{ account.subtype }} • •••• {{ account.lastFour }}</p>
+          </div>
+          <strong>{{ account.balance | currency }}</strong>
+        </button>
+      }
+    </div>
+  </article>
+
+  <article class="panel">
+    @if (activeAccount(); as account) {
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Selected account</p>
+          <h3>{{ account.name }}</h3>
+        </div>
+        <span class="subtle">{{ account.status }}</span>
+      </div>
+
+      <div class="detail-grid">
+        <article><span>Current balance</span><strong>{{ account.balance | currency }}</strong></article>
+        <article><span>Available</span><strong>{{ account.available | currency }}</strong></article>
+        <article><span>Type</span><strong>{{ account.subtype }}</strong></article>
+      </div>
+
+      <div class="transactions">
+        @for (transaction of account.transactions; track transaction.id) {
+          <article class="transaction-row">
+            <div>
+              <strong>{{ transaction.title }}</strong>
+              <p>{{ transaction.detail }}</p>
+            </div>
+            <div class="transaction-meta">
+              <strong [class.credit]="transaction.type === 'credit'">
+                {{ transaction.type === 'credit' ? '+' : '-' }}{{ transaction.amount | currency }}
+              </strong>
+              <span>{{ transaction.timestamp | date: 'MMM d, h:mm a' }}</span>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </article>
+</section>

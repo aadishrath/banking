@@ -1,0 +1,35 @@
+<button type="button" class="launcher" (click)="toggle()">{{ isOpen ? 'Close assistant' : 'Open assistant' }}</button>
+
+@if (isOpen) {
+  <section class="chatbot">
+    <header>
+      <div>
+        <p class="eyebrow">Task assistant</p>
+        <h3>Banking copilot</h3>
+      </div>
+      <span class="status-dot">Live</span>
+    </header>
+
+    <div class="messages" #viewport>
+      @for (message of store.chatMessages(); track message.id) {
+        <article class="bubble" [class.user]="message.role === 'user'">
+          <p>{{ message.text }}</p>
+          <span>{{ message.timestamp | date: 'h:mm a' }}</span>
+        </article>
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="composer">
+      <textarea rows="3" formControlName="prompt" placeholder="Try: transfer 250 from checking to vacation savings"></textarea>
+      <button type="submit">Send</button>
+    </form>
+
+    <p class="status-dot">
+      @if (store.can('chat_execute')) {
+        This role can execute supported chatbot tasks.
+      } @else {
+        This role can use the chatbot for guidance only.
+      }
+    </p>
+  </section>
+}

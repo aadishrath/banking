@@ -1,0 +1,790 @@
+{
+  "users": [
+    {
+      "id": "usr-admin",
+      "username": "admin",
+      "role": "admin",
+      "permissions": [
+        "view_payments",
+        "make_transfer",
+        "pay_card",
+        "freeze_card",
+        "chat_balance",
+        "chat_execute",
+        "edit_profile",
+        "manage_permissions",
+        "manage_users",
+        "view_company_hub",
+        "view_activity"
+      ],
+      "profile": {
+        "id": "usr-admin",
+        "username": "admin",
+        "name": "Jordan Ellis",
+        "email": "jordan.ellis@luminatebank.demo",
+        "phoneNumber": "(212) 555-0189",
+        "address": "350 Hudson Street, New York, NY 10014",
+        "twoFactorEnabled": true,
+        "membership": "Platform Administrator",
+        "location": "New York, NY",
+        "initials": "JE"
+      },
+      "sessionId": null,
+      "passwordHash": "scrypt$374d5cd898de8d6db98c455e323127ed$4565f2a87ac764a2cb328d588792c61310afd247328c06560d6573386591f3250407f1a5d0326013212c3ad2ec3dc37aa76bb459890e3a426ea0eab5f461cb7a",
+      "failedLoginAttempts": 0,
+      "lockUntil": null,
+      "sessionExpiresAt": null,
+      "lastLoginAt": null
+    },
+    {
+      "id": "usr-customer",
+      "username": "customer",
+      "role": "customer",
+      "permissions": [
+        "view_payments",
+        "make_transfer",
+        "pay_card",
+        "chat_balance",
+        "view_activity"
+      ],
+      "profile": {
+        "id": "usr-customer",
+        "username": "customer",
+        "name": "Ava Morgan",
+        "email": "ava.morgan@luminatebank.demo",
+        "phoneNumber": "(415) 555-0147",
+        "address": "1280 Market Street, San Francisco, CA 94102",
+        "twoFactorEnabled": false,
+        "membership": "Private Client",
+        "location": "San Francisco, CA",
+        "initials": "AM"
+      },
+      "sessionId": null,
+      "passwordHash": "scrypt$73fcf3c90e08882825cbffb6970e698b$a162dce547c79a38a29639ef2822361897cb3604a579894d5e6e459cbbd9f22e6e4bed8e63eff5d650a946e3431acbf353912321f775fd41bba784a43b369ec3",
+      "failedLoginAttempts": 0,
+      "lockUntil": null,
+      "sessionExpiresAt": null,
+      "lastLoginAt": null
+    },
+    {
+      "id": "usr-company",
+      "username": "company",
+      "role": "company",
+      "permissions": [
+        "view_payments",
+        "make_transfer",
+        "chat_balance",
+        "chat_execute",
+        "edit_profile",
+        "manage_users",
+        "view_company_hub",
+        "view_activity"
+      ],
+      "profile": {
+        "id": "usr-company",
+        "username": "company",
+        "name": "Maya Chen",
+        "email": "maya.chen@northstar-industries.demo",
+        "phoneNumber": "(206) 555-0122",
+        "address": "800 Terry Avenue, Seattle, WA 98109",
+        "twoFactorEnabled": true,
+        "membership": "Business Treasury",
+        "location": "Seattle, WA",
+        "initials": "MC",
+        "organization": "Northstar Industries"
+      },
+      "sessionId": null,
+      "passwordHash": "scrypt$04cea7d15528a9e4ea46aac4d5e3cf93$6e3add3ccf605a84cc6d1c97a5f1594d51d8f0c3a57a603975bc6271beec5f790a5a1fbe2e19b5dbf7ea6d8da20bc28712e9ab571a2f8b119a84ea1a82ae243d",
+      "failedLoginAttempts": 0,
+      "lockUntil": null,
+      "sessionExpiresAt": null,
+      "lastLoginAt": null
+    }
+  ],
+  "workspaces": {
+    "admin": {
+      "accounts": [
+        {
+          "id": "acct-checking",
+          "name": "Everyday Checking",
+          "alias": [
+            "checking",
+            "everyday",
+            "main checking"
+          ],
+          "kind": "deposit",
+          "subtype": "Checking",
+          "currency": "USD",
+          "balance": 8450.44,
+          "available": 8450.44,
+          "accent": "linear-gradient(135deg, #1d4ed8, #0f766e)",
+          "status": "active",
+          "lastFour": "4821",
+          "transactions": [
+            {
+              "id": "txn-1",
+              "timestamp": "2026-04-05T22:15:00.000Z",
+              "title": "Payroll deposit",
+              "amount": 3200,
+              "type": "credit",
+              "detail": "Luminate Studio"
+            }
+          ]
+        },
+        {
+          "id": "acct-savings",
+          "name": "Vacation Savings",
+          "alias": [
+            "savings",
+            "vacation",
+            "travel savings"
+          ],
+          "kind": "deposit",
+          "subtype": "High Yield Savings",
+          "currency": "USD",
+          "balance": 15280.91,
+          "available": 15280.91,
+          "accent": "linear-gradient(135deg, #f97316, #ef4444)",
+          "status": "active",
+          "lastFour": "9017",
+          "transactions": [
+            {
+              "id": "txn-4",
+              "timestamp": "2026-04-01T17:15:00.000Z",
+              "title": "Monthly savings rule",
+              "amount": 500,
+              "type": "credit",
+              "detail": "Automatic transfer"
+            }
+          ]
+        },
+        {
+          "id": "acct-card",
+          "name": "Platinum Rewards Card",
+          "alias": [
+            "card",
+            "credit card",
+            "platinum",
+            "rewards card"
+          ],
+          "kind": "card",
+          "subtype": "Credit Card",
+          "currency": "USD",
+          "balance": -2340.19,
+          "available": 15659.81,
+          "accent": "linear-gradient(135deg, #111827, #334155)",
+          "status": "active",
+          "lastFour": "7742",
+          "apr": 19.99,
+          "dueDate": "2026-04-15T00:15:00.000Z",
+          "transactions": [
+            {
+              "id": "txn-7",
+              "timestamp": "2026-04-05T02:15:00.000Z",
+              "title": "Airline purchase",
+              "amount": 420.32,
+              "type": "debit",
+              "detail": "Booked through travel portal"
+            }
+          ]
+        }
+      ],
+      "activity": [
+        {
+          "id": "act-1",
+          "timestamp": "2026-04-06T15:15:00.000Z",
+          "title": "Session ready",
+          "description": "Administrator workspace loaded.",
+          "status": "info",
+          "category": "insight",
+          "channel": "system"
+        },
+        {
+          "id": "act-3eu46a1t-mnnqb4uq",
+          "timestamp": "2026-04-06T21:55:15.410Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-i16ntb7m-mnnqhdlh",
+          "timestamp": "2026-04-06T22:00:06.677Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-yngem7nq-mnnrywby",
+          "timestamp": "2026-04-06T22:41:43.726Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-rii071cx-mnns16wm",
+          "timestamp": "2026-04-06T22:43:30.742Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-h1d2kmn0-mnns19fr",
+          "timestamp": "2026-04-06T22:43:34.023Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-eok0xney-mnnsgmxs",
+          "timestamp": "2026-04-06T22:55:31.360Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-huckaafn-mnnsq72s",
+          "timestamp": "2026-04-06T23:02:57.364Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-bwudai84-mnnt28l0",
+          "timestamp": "2026-04-06T23:12:19.188Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-30t24i8n-mnnt2f8c",
+          "timestamp": "2026-04-06T23:12:27.804Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-7kk0o8mt-mnntby9l",
+          "timestamp": "2026-04-06T23:19:52.377Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-eeh73oxc-mnntc2n5",
+          "timestamp": "2026-04-06T23:19:58.049Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-7bfw1pm4-mnntojxz",
+          "timestamp": "2026-04-06T23:29:40.343Z",
+          "title": "Login successful",
+          "description": "Jordan Ellis logged into the admin workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-jbtbq7zy-mnnu59ys",
+          "timestamp": "2026-04-06T23:42:40.564Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        }
+      ],
+      "chat": [
+        {
+          "id": "msg-1",
+          "role": "assistant",
+          "text": "Hi Jordan. I can transfer money, pay your card, freeze or unfreeze the card, and answer balance questions.",
+          "timestamp": "2026-04-06T20:15:00.000Z",
+          "status": "processed"
+        },
+        {
+          "id": "msg-cq7g715l-mnnqdqf4",
+          "role": "user",
+          "text": "transfer 2500 from checking to vacation",
+          "timestamp": "2026-04-06T21:57:16.672Z",
+          "status": "sent"
+        },
+        {
+          "id": "msg-d4qy969t-mnnqdqf4",
+          "role": "assistant",
+          "text": "I can help with balances, transfers, payments, and company workspace information.",
+          "timestamp": "2026-04-06T21:57:16.672Z",
+          "status": "processed"
+        },
+        {
+          "id": "msg-inwkn7vz-mnnqe4vp",
+          "role": "user",
+          "text": "transfer 2500 from checking to vacation",
+          "timestamp": "2026-04-06T21:57:35.413Z",
+          "status": "sent"
+        },
+        {
+          "id": "msg-f944zyjs-mnnqe4vp",
+          "role": "assistant",
+          "text": "I can help with balances, transfers, payments, and company workspace information.",
+          "timestamp": "2026-04-06T21:57:35.413Z",
+          "status": "processed"
+        }
+      ],
+      "companyWorkspace": {
+        "companyName": "Northstar Industries",
+        "pendingInvoices": 12,
+        "pendingApprovals": 4,
+        "payrollTotal": 68420,
+        "payrollRunDate": "2026-04-10T15:15:00.000Z",
+        "treasuryBalance": 620000
+      }
+    },
+    "customer": {
+      "accounts": [
+        {
+          "id": "acct-checking",
+          "name": "Everyday Checking",
+          "alias": [
+            "checking",
+            "everyday",
+            "main checking"
+          ],
+          "kind": "deposit",
+          "subtype": "Checking",
+          "currency": "USD",
+          "balance": 8450.44,
+          "available": 8450.44,
+          "accent": "linear-gradient(135deg, #1d4ed8, #0f766e)",
+          "status": "active",
+          "lastFour": "4821",
+          "transactions": [
+            {
+              "id": "txn-1",
+              "timestamp": "2026-04-05T22:15:00.000Z",
+              "title": "Payroll deposit",
+              "amount": 3200,
+              "type": "credit",
+              "detail": "Luminate Studio"
+            },
+            {
+              "id": "txn-2",
+              "timestamp": "2026-04-04T18:15:00.000Z",
+              "title": "Coffee collective",
+              "amount": 18.45,
+              "type": "debit",
+              "detail": "Mission District"
+            }
+          ]
+        },
+        {
+          "id": "acct-savings",
+          "name": "Vacation Savings",
+          "alias": [
+            "savings",
+            "vacation",
+            "travel savings"
+          ],
+          "kind": "deposit",
+          "subtype": "High Yield Savings",
+          "currency": "USD",
+          "balance": 15280.91,
+          "available": 15280.91,
+          "accent": "linear-gradient(135deg, #f97316, #ef4444)",
+          "status": "active",
+          "lastFour": "9017",
+          "transactions": [
+            {
+              "id": "txn-4",
+              "timestamp": "2026-04-01T17:15:00.000Z",
+              "title": "Monthly savings rule",
+              "amount": 500,
+              "type": "credit",
+              "detail": "Automatic transfer"
+            }
+          ]
+        },
+        {
+          "id": "acct-reserve",
+          "name": "Emergency Reserve",
+          "alias": [
+            "reserve",
+            "emergency",
+            "backup"
+          ],
+          "kind": "deposit",
+          "subtype": "Money Market",
+          "currency": "USD",
+          "balance": 24110.37,
+          "available": 24110.37,
+          "accent": "linear-gradient(135deg, #7c3aed, #ec4899)",
+          "status": "active",
+          "lastFour": "1142",
+          "transactions": [
+            {
+              "id": "txn-6",
+              "timestamp": "2026-03-29T16:15:00.000Z",
+              "title": "Emergency fund contribution",
+              "amount": 750,
+              "type": "credit",
+              "detail": "Standing transfer"
+            }
+          ]
+        },
+        {
+          "id": "acct-card",
+          "name": "Platinum Rewards Card",
+          "alias": [
+            "card",
+            "credit card",
+            "platinum",
+            "rewards card"
+          ],
+          "kind": "card",
+          "subtype": "Credit Card",
+          "currency": "USD",
+          "balance": -2340.19,
+          "available": 15659.81,
+          "accent": "linear-gradient(135deg, #111827, #334155)",
+          "status": "active",
+          "lastFour": "7742",
+          "apr": 19.99,
+          "dueDate": "2026-04-15T00:15:00.000Z",
+          "transactions": [
+            {
+              "id": "txn-7",
+              "timestamp": "2026-04-05T02:15:00.000Z",
+              "title": "Airline purchase",
+              "amount": 420.32,
+              "type": "debit",
+              "detail": "Booked through travel portal"
+            }
+          ]
+        }
+      ],
+      "activity": [
+        {
+          "id": "act-1",
+          "timestamp": "2026-04-06T15:15:00.000Z",
+          "title": "Session ready",
+          "description": "Mock banking environment loaded for today.",
+          "status": "info",
+          "category": "insight",
+          "channel": "system"
+        },
+        {
+          "id": "act-a18jkblr-mnnqhg93",
+          "timestamp": "2026-04-06T22:00:10.119Z",
+          "title": "Login successful",
+          "description": "Ava Morgan logged into the customer workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-pl007mjp-mnnqhww7",
+          "timestamp": "2026-04-06T22:00:31.687Z",
+          "title": "Chatbot balance request",
+          "description": "User asked the chatbot for a balance summary.",
+          "status": "info",
+          "category": "insight",
+          "channel": "chatbot"
+        },
+        {
+          "id": "act-2ef9o1jv-mnnqkglo",
+          "timestamp": "2026-04-06T22:02:30.540Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-kmxjexur-mnnsq99x",
+          "timestamp": "2026-04-06T23:03:00.213Z",
+          "title": "Login successful",
+          "description": "Ava Morgan logged into the customer workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-9146u4rr-mnnt273b",
+          "timestamp": "2026-04-06T23:12:17.255Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-010u0u0a-mnntc4c7",
+          "timestamp": "2026-04-06T23:20:00.247Z",
+          "title": "Login successful",
+          "description": "Ava Morgan logged into the customer workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-q8u6f82r-mnntoim2",
+          "timestamp": "2026-04-06T23:29:38.618Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-ad81idvl-mnnu5bof",
+          "timestamp": "2026-04-06T23:42:42.783Z",
+          "title": "Login successful",
+          "description": "Ava Morgan logged into the customer workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-4nu2lw6y-mnnu5de4",
+          "timestamp": "2026-04-06T23:42:45.004Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        }
+      ],
+      "chat": [
+        {
+          "id": "msg-1",
+          "role": "assistant",
+          "text": "Hi Ava. I can answer balance questions and explain which banking actions are available to your role.",
+          "timestamp": "2026-04-06T20:15:00.000Z",
+          "status": "processed"
+        },
+        {
+          "id": "msg-8txrqfh1-mnnqhww7",
+          "role": "user",
+          "text": "checking  account balance",
+          "timestamp": "2026-04-06T22:00:31.687Z",
+          "status": "sent"
+        },
+        {
+          "id": "msg-374algrg-mnnqhww7",
+          "role": "assistant",
+          "text": "Liquid balances total $47841.72.",
+          "timestamp": "2026-04-06T22:00:31.687Z",
+          "status": "processed"
+        }
+      ]
+    },
+    "company": {
+      "accounts": [
+        {
+          "id": "acct-ops",
+          "name": "Operating Account",
+          "alias": [
+            "operating",
+            "ops",
+            "business checking"
+          ],
+          "kind": "deposit",
+          "subtype": "Business Checking",
+          "currency": "USD",
+          "balance": 184500.22,
+          "available": 184500.22,
+          "accent": "linear-gradient(135deg, #0f766e, #14b8a6)",
+          "status": "active",
+          "lastFour": "3304",
+          "transactions": [
+            {
+              "id": "ctxn-1",
+              "timestamp": "2026-04-05T16:15:00.000Z",
+              "title": "Client wire received",
+              "amount": 48250,
+              "type": "credit",
+              "detail": "Enterprise contract payout"
+            }
+          ]
+        },
+        {
+          "id": "acct-treasury",
+          "name": "Treasury Reserve",
+          "alias": [
+            "treasury",
+            "reserve",
+            "cash reserve"
+          ],
+          "kind": "deposit",
+          "subtype": "Treasury Reserve",
+          "currency": "USD",
+          "balance": 620000,
+          "available": 620000,
+          "accent": "linear-gradient(135deg, #1d4ed8, #7c3aed)",
+          "status": "active",
+          "lastFour": "7814",
+          "transactions": [
+            {
+              "id": "ctxn-3",
+              "timestamp": "2026-04-01T18:15:00.000Z",
+              "title": "Reserve allocation",
+              "amount": 65000,
+              "type": "credit",
+              "detail": "Quarterly treasury move"
+            }
+          ]
+        },
+        {
+          "id": "acct-payroll",
+          "name": "Payroll Wallet",
+          "alias": [
+            "payroll",
+            "salary",
+            "payroll wallet"
+          ],
+          "kind": "deposit",
+          "subtype": "Payroll Account",
+          "currency": "USD",
+          "balance": 94500,
+          "available": 94500,
+          "accent": "linear-gradient(135deg, #f97316, #fb7185)",
+          "status": "attention",
+          "lastFour": "9820",
+          "transactions": [
+            {
+              "id": "ctxn-4",
+              "timestamp": "2026-04-03T15:15:00.000Z",
+              "title": "Payroll run draft",
+              "amount": 68420,
+              "type": "debit",
+              "detail": "Queued for Friday release"
+            }
+          ]
+        }
+      ],
+      "activity": [
+        {
+          "id": "cact-1",
+          "timestamp": "2026-04-06T15:15:00.000Z",
+          "title": "Treasury workspace ready",
+          "description": "Company treasury dashboard loaded for Northstar Industries.",
+          "status": "info",
+          "category": "company",
+          "channel": "system"
+        },
+        {
+          "id": "act-lrurazml-mnnqkine",
+          "timestamp": "2026-04-06T22:02:33.194Z",
+          "title": "Login successful",
+          "description": "Maya Chen logged into the company workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-pykysk2o-mnnraj0c",
+          "timestamp": "2026-04-06T22:22:46.716Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-ms2h4bkb-mnnraqt4",
+          "timestamp": "2026-04-06T22:22:56.824Z",
+          "title": "Login successful",
+          "description": "Maya Chen logged into the company workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-xkzlwzki-mnnrytnu",
+          "timestamp": "2026-04-06T22:41:40.266Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-yirdyirr-mnnt2h1o",
+          "timestamp": "2026-04-06T23:12:30.156Z",
+          "title": "Login successful",
+          "description": "Maya Chen logged into the company workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-3kjmsbv9-mnntbwpq",
+          "timestamp": "2026-04-06T23:19:50.366Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-u8vclnbc-mnnu5f89",
+          "timestamp": "2026-04-06T23:42:47.385Z",
+          "title": "Login successful",
+          "description": "Maya Chen logged into the company workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        },
+        {
+          "id": "act-jivmpr5t-mnnu5je4",
+          "timestamp": "2026-04-06T23:42:52.780Z",
+          "title": "Logout successful",
+          "description": "User logged out of the banking workspace.",
+          "status": "success",
+          "category": "authentication",
+          "channel": "app"
+        }
+      ],
+      "chat": [
+        {
+          "id": "msg-company-1",
+          "role": "assistant",
+          "text": "Hi Maya. I can help with treasury transfers, operating balances, payroll funding, and company workspace questions.",
+          "timestamp": "2026-04-06T20:15:00.000Z",
+          "status": "processed"
+        }
+      ],
+      "companyWorkspace": {
+        "companyName": "Northstar Industries",
+        "pendingInvoices": 12,
+        "pendingApprovals": 4,
+        "payrollTotal": 68420,
+        "payrollRunDate": "2026-04-10T15:15:00.000Z",
+        "treasuryBalance": 620000
+      }
+    }
+  }
+}

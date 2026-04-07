@@ -1,0 +1,39 @@
+@if (workspace(); as workspace) {
+  <section class="company-grid">
+    <article class="panel hero">
+      <div>
+        <p class="eyebrow">Company workspace</p>
+        <h3>{{ workspace.companyName }}</h3>
+        <p>Business treasury, payroll planning, invoice approvals, and operating cash controls.</p>
+      </div>
+      <strong>{{ workspace.treasuryBalance | currency }}</strong>
+    </article>
+
+    <article class="panel metric">
+      <p class="eyebrow">Pending invoices</p>
+      <strong>{{ workspace.pendingInvoices }}</strong>
+      <span>Supplier invoices waiting for release.</span>
+    </article>
+
+    <article class="panel metric">
+      <p class="eyebrow">Pending approvals</p>
+      <strong>{{ workspace.pendingApprovals }}</strong>
+      <span>Multi-step approvals still open this week.</span>
+    </article>
+
+    <article class="panel metric">
+      <p class="eyebrow">Payroll funding</p>
+      <strong>{{ workspace.payrollTotal | currency }}</strong>
+      <span>Next payroll run {{ workspace.payrollRunDate | date: 'MMM d, y' }}</span>
+    </article>
+
+    <article class="panel wide">
+      <p class="eyebrow">Role-aware company features</p>
+      <ul>
+        <li>Company users and admins see treasury metrics and payroll planning.</li>
+        <li>Retail-only card tools are hidden for company users.</li>
+        <li>Transfers remain available for treasury funding and cash moves.</li>
+      </ul>
+    </article>
+  </section>
+}

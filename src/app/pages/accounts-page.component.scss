@@ -1,0 +1,100 @@
+.accounts-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.25rem;
+}
+
+.panel {
+  padding: 1.4rem;
+  border-radius: 1.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.section-heading,
+.account-item,
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.account-list,
+.transactions {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.account-item {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  background: rgba(30, 41, 59, 0.72);
+  color: var(--text);
+  cursor: pointer;
+  align-items: center;
+}
+
+.account-item.active {
+  border-color: rgba(56, 189, 248, 0.45);
+  transform: translateX(4px);
+}
+
+.accent {
+  width: 0.75rem;
+  height: 3rem;
+  border-radius: 999px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.4rem;
+}
+
+.detail-grid article {
+  padding: 1rem;
+  border-radius: 1.1rem;
+  background: rgba(30, 41, 59, 0.82);
+}
+
+.transaction-row {
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+  align-items: start;
+}
+
+.transaction-row p,
+.transaction-row strong {
+  margin: 0;
+}
+
+.transaction-meta {
+  text-align: right;
+}
+
+.credit {
+  color: #86efac;
+}
+
+.subtle {
+  text-transform: capitalize;
+  color: var(--muted);
+}
+
+@media (max-width: 1080px) {
+  .accounts-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .account-item,
+  .transaction-row,
+  .detail-grid,
+  .section-heading {
+    display: grid;
+  }
+}

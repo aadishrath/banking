@@ -1,0 +1,129 @@
+<section class="dashboard-grid">
+  <article class="hero panel">
+    <div>
+      <p class="eyebrow">{{ store.role() === 'company' ? 'Treasury balance' : 'Portfolio balance' }}</p>
+      <h3>{{ store.totalBalance() | currency }}</h3>
+      <p class="muted">
+        @if (store.role() === 'company') {
+          Operating, treasury, and payroll funds across the company workspace.
+        } @else {
+          Liquid funds across checking, savings, and emergency reserve accounts.
+        }
+      </p>
+    </div>
+    <div class="hero-actions">
+      @if (store.can('view_payments')) {
+        <a routerLink="/payments" class="solid-link">Move money</a>
+      }
+      <a routerLink="/activity" class="ghost-link">Review activity</a>
+    </div>
+  </article>
+
+  <article class="panel stat">
+    <p class="eyebrow">{{ store.role() === 'company' ? 'Pending approvals' : 'Outstanding card balance' }}</p>
+    <strong>
+      @if (store.role() === 'company') {
+        {{ store.companyWorkspace()?.pendingApprovals }}
+      } @else {
+        {{ store.cardOutstanding() | currency }}
+      }
+    </strong>
+    @if (store.role() === 'company') {
+      <span>Approvals still waiting in the treasury workflow.</span>
+    } @else {
+      @if (store.upcomingPayment(); as card) {
+        <span>Payment due {{ card.dueDate | date: 'MMM d' }}</span>
+      }
+    }
+  </article>
+
+  <article class="panel stat">
+    <p class="eyebrow">{{ store.role() === 'company' ? 'Payroll funding' : 'Recent money movement' }}</p>
+    <strong>
+      @if (store.role() === 'company') {
+        {{ store.companyWorkspace()?.payrollTotal | currency }}
+      } @else {
+        {{ monthlyMovement() | currency }}
+      }
+    </strong>
+    <span>
+      @if (store.role() === 'company') {
+        Reserved for the next payroll cycle.
+      } @else {
+        Based on the latest posted transactions.
+      }
+    </span>
+  </article>
+
+  <article class="panel account-stack">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Accounts</p>
+        <h3>{{ store.role() === 'company' ? 'Treasury accounts' : 'Connected balances' }}</h3>
+      </div>
+      <a routerLink="/accounts">View all</a>
+    </div>
+
+    <div class="cards">
+      @for (account of store.accounts(); track account.id) {
+        <article class="account-card" [style.background]="account.accent">
+          <div class="account-card__top">
+            <span>{{ account.subtype }}</span>
+            <span>•••• {{ account.lastFour }}</span>
+          </div>
+          <strong>{{ account.name }}</strong>
+          <h4>{{ account.balance | currency }}</h4>
+        </article>
+      }
+    </div>
+  </article>
+
+  <article class="panel activity-preview">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Activity stream</p>
+        <h3>Latest outcomes</h3>
+      </div>
+      <a routerLink="/activity">Full ledger</a>
+    </div>
+
+    <div class="activity-list">
+      @for (entry of store.recentActivity(); track entry.id) {
+        <article class="activity-row">
+          <div>
+            <strong>{{ entry.title }}</strong>
+            <p>{{ entry.description }}</p>
+          </div>
+          <div class="activity-meta">
+            <app-status-pill [status]="entry.status" />
+            <span>{{ entry.timestamp | date: 'MMM d, h:mm a' }}</span>
+          </div>
+        </article>
+      }
+    </div>
+  </article>
+
+  <article class="panel insights">
+    <p class="eyebrow">Deferred insight panel</p>
+    @defer (on viewport) {
+      <div class="insight-cards">
+        <article>
+          <strong>Permission-aware workspace</strong>
+          <p>Navigation, manual actions, and chatbot abilities now adapt to the signed-in role.</p>
+        </article>
+        <article>
+          <strong>{{ store.role() === 'company' ? 'Company operations' : 'Audit-first logging' }}</strong>
+          <p>
+            @if (store.role() === 'company') {
+              Company users can jump into the Company Hub for invoices, payroll, and treasury metrics.
+            } @else {
+              Each request is logged as in-progress first, then finalized as success or failure.
+            }
+          </p>
+        </article>
+      </div>
+    } @placeholder {
+      <div class="placeholder-card">Loading contextual insights...</div>
+    }
+  </article>
+</section>

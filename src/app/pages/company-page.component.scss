@@ -1,0 +1,49 @@
+.company-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.panel {
+  padding: 1.4rem;
+  border-radius: 1.6rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  background: rgba(15, 23, 42, 0.68);
+}
+
+.hero {
+  grid-column: span 12;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+
+.hero strong,
+.metric strong {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.metric {
+  grid-column: span 4;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.wide {
+  grid-column: span 12;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .hero,
+  .metric,
+  .wide {
+    grid-column: span 12;
+  }
+}

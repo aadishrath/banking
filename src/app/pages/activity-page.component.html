@@ -1,0 +1,56 @@
+<section class="panel activity-shell">
+  <div class="section-heading">
+    <div>
+      <p class="eyebrow">Activity ledger</p>
+      <h3>Every login, logout, manual action, and chatbot task is recorded here.</h3>
+    </div>
+  </div>
+
+  <div class="filters">
+    <label>
+      Status
+      <select [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="all">All</option>
+        <option value="success">Success</option>
+        <option value="failed">Failed</option>
+        <option value="in-progress">In progress</option>
+        <option value="info">Info</option>
+      </select>
+    </label>
+
+    <label>
+      Channel
+      <select [ngModel]="channelFilter()" (ngModelChange)="channelFilter.set($event)">
+        <option value="all">All</option>
+        <option value="app">App</option>
+        <option value="chatbot">Chatbot</option>
+        <option value="system">System</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="rows">
+    @for (entry of filteredActivity(); track entry.id) {
+      <article class="activity-row">
+        <div>
+          <strong>{{ entry.title }}</strong>
+          <p>{{ entry.description }}</p>
+          <div class="meta">
+            <span>{{ entry.category }}</span>
+            <span>{{ entry.channel }}</span>
+            @if (entry.amount) {
+              <span>{{ entry.amount | currency }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="side">
+          <app-status-pill [status]="entry.status" />
+          <span>{{ entry.timestamp | date: 'MMM d, y h:mm a' }}</span>
+        </div>
+      </article>
+    } @empty {
+      <p class="empty">No activity entries match the current filter.</p>
+    }
+  </div>
+</section>
