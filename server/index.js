@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const { ensureDbReady, readDb, writeDb, makeId, sortByTimestamp } = require('./lib/db');
+const { ensureDbReady, store, withTransaction, readDb, writeDb, makeId, sortByTimestamp } = require('./lib/db');
 const { hashPassword, verifyPassword } = require('./lib/auth');
 
 const app = express();
@@ -61,14 +61,9 @@ function logStartupWarning() {
   }
 }
 
-function findUserByUsername(db, username) {
-  return db.users.find((user) => user.username === username);
-}
-
-function getWorkspace(db, username) {
-  const workspace = db.workspaces[username];
+function getWorkspace(workspace, username) {
   if (!workspace) {
-    throw new Error('Workspace not found.');
+    throw new Error(`Workspace not found for ${username}.`);
   }
   return workspace;
 }
@@ -83,8 +78,7 @@ async function auth(req, res, next) {
 
   try {
     const payload = jwt.verify(token, jwtSecret);
-    const db = await readDb();
-    const user = findUserByUsername(db, payload.username);
+    const user = await store.getUserByUsername(payload.username);
 
     if (!user || !user.sessionId || !user.sessionExpiresAt) {
       return res.status(401).json({ message: 'User session is no longer valid.' });
@@ -97,13 +91,12 @@ async function auth(req, res, next) {
     if (new Date(user.sessionExpiresAt).getTime() <= Date.now()) {
       user.sessionId = null;
       user.sessionExpiresAt = null;
-      await writeDb(db);
+      await withTransaction((tx) => tx.upsertUser(user));
       return res.status(401).json({ message: 'Your session has expired. Please sign in again.' });
     }
 
-    req.db = db;
     req.user = user;
-    req.workspace = getWorkspace(db, user.username);
+    req.workspace = getWorkspace(await store.getWorkspaceByUsername(user.username), user.username);
     return next();
   } catch (error) {
     return res.status(401).json({ message: 'Invalid or expired token.' });
@@ -162,8 +155,10 @@ function normalizeDbAuth(db) {
   }
 
   if (changed) {
-    writeDb(db);
+    return writeDb(db);
   }
+
+  return Promise.resolve();
 }
 
 function buildInitials(name) {
@@ -202,9 +197,8 @@ function assignablePermissionsFor(user) {
   );
 }
 
-function createWorkspaceForRole(db, role, profile) {
-  const templateKey = role === 'admin' ? 'admin' : role === 'company' ? 'company' : 'customer';
-  const workspace = clone(db.workspaces[templateKey]);
+function createWorkspaceForRole(templateWorkspace, role, profile) {
+  const workspace = clone(templateWorkspace);
 
   if (workspace.chat?.[0]) {
     const firstName = profile.name.split(' ')[0];
@@ -282,15 +276,28 @@ function snapshot(user, workspace) {
   };
 }
 
+async function persistUserAndWorkspace(user, workspace) {
+  await withTransaction(async (tx) => {
+    await tx.upsertUser(user);
+    if (workspace) {
+      await tx.upsertWorkspace(user.username, workspace);
+    }
+  });
+}
+
+async function persistWorkspace(username, workspace) {
+  await withTransaction(async (tx) => {
+    await tx.upsertWorkspace(username, workspace);
+  });
+}
+
 app.get('/api/health', (req, res) => {
   res.json({ ok: true });
 });
 
 app.post('/api/auth/login', async (req, res) => {
   const { username, password } = req.body;
-  const db = await readDb();
-  normalizeDbAuth(db);
-  const user = db.users.find((candidate) => candidate.username === username);
+  const user = await store.getUserByUsername(username);
 
   if (user?.lockUntil && new Date(user.lockUntil).getTime() > Date.now()) {
     return res.status(423).json({
@@ -302,7 +309,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (user) {
       user.failedLoginAttempts = Number(user.failedLoginAttempts || 0) + 1;
 
-      const workspace = getWorkspace(db, user.username);
+      const workspace = getWorkspace(await store.getWorkspaceByUsername(user.username), user.username);
       const shouldLock = user.failedLoginAttempts >= maxFailedLogins;
       user.lockUntil = shouldLock ? new Date(Date.now() + lockoutWindowMs).toISOString() : null;
       appendActivity(workspace, {
@@ -314,7 +321,7 @@ app.post('/api/auth/login', async (req, res) => {
         category: 'authentication',
         channel: 'system'
       });
-      await writeDb(db);
+      await persistUserAndWorkspace(user, workspace);
     }
 
     return res.status(401).json({
@@ -333,7 +340,7 @@ app.post('/api/auth/login', async (req, res) => {
     { expiresIn: tokenTtl }
   );
 
-  const workspace = getWorkspace(db, user.username);
+  const workspace = getWorkspace(await store.getWorkspaceByUsername(user.username), user.username);
   appendActivity(workspace, {
     title: 'Login successful',
     description: `${user.profile.name} logged into the ${user.role} workspace.`,
@@ -341,7 +348,7 @@ app.post('/api/auth/login', async (req, res) => {
     category: 'authentication',
     channel: 'app'
   });
-  await writeDb(db);
+  await persistUserAndWorkspace(user, workspace);
 
   return res.json({
     token: signedToken,
@@ -367,7 +374,7 @@ app.post('/api/auth/logout', auth, async (req, res) => {
   });
   req.user.sessionId = null;
   req.user.sessionExpiresAt = null;
-  await writeDb(req.db);
+  await persistUserAndWorkspace(req.user, req.workspace);
   res.json({ ok: true });
 });
 
@@ -403,7 +410,7 @@ app.patch('/api/permissions', auth, requirePermission('manage_permissions'), asy
     category: 'security',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await persistUserAndWorkspace(req.user, req.workspace);
   return res.json({
     role: req.user.role,
     permissions: req.user.permissions,
@@ -413,9 +420,7 @@ app.patch('/api/permissions', auth, requirePermission('manage_permissions'), asy
 
 app.get('/api/users', auth, requirePermission('manage_users'), async (req, res) => {
   const allowedRoles = manageableRolesFor(req.user);
-  const users = req.db.users
-    .filter((user) => allowedRoles.includes(user.role))
-    .map((user) => sanitizeUser(user));
+  const users = (await store.listUsersByRoles(allowedRoles)).map((user) => sanitizeUser(user));
 
   res.json({
     users,
@@ -443,7 +448,7 @@ app.post('/api/users', auth, requirePermission('manage_users'), async (req, res)
     return res.status(403).json({ message: 'Your role cannot create that type of user.' });
   }
 
-  if (findUserByUsername(req.db, username)) {
+  if (await store.getUserByUsername(username)) {
     return res.status(400).json({ message: 'That username is already in use.' });
   }
 
@@ -489,8 +494,12 @@ app.post('/api/users', auth, requirePermission('manage_users'), async (req, res)
     lockUntil: null
   };
 
-  req.db.users.push(user);
-  req.db.workspaces[user.username] = createWorkspaceForRole(req.db, role, profile);
+  const templateKey = role === 'admin' ? 'admin' : role === 'company' ? 'company' : 'customer';
+  const newWorkspace = createWorkspaceForRole(
+    getWorkspace(await store.getWorkspaceByUsername(templateKey), templateKey),
+    role,
+    profile
+  );
   appendActivity(req.workspace, {
     title: 'User created',
     description: `${user.profile.name} (${user.username}) was added as a ${role}.`,
@@ -498,13 +507,17 @@ app.post('/api/users', auth, requirePermission('manage_users'), async (req, res)
     category: 'account',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await withTransaction(async (tx) => {
+    await tx.upsertUser(user);
+    await tx.upsertWorkspace(user.username, newWorkspace);
+    await tx.upsertWorkspace(req.user.username, req.workspace);
+  });
 
   return res.status(201).json({ user: sanitizeUser(user) });
 });
 
 app.patch('/api/users/:id', auth, requirePermission('manage_users'), async (req, res) => {
-  const target = req.db.users.find((user) => user.id === req.params.id);
+  const target = await store.getUserById(req.params.id);
 
   if (!target) {
     return res.status(404).json({ message: 'That user could not be found.' });
@@ -570,7 +583,7 @@ app.patch('/api/users/:id', auth, requirePermission('manage_users'), async (req,
     target.lockUntil = null;
   }
 
-  const workspace = req.db.workspaces[target.username];
+  const workspace = await store.getWorkspaceByUsername(target.username);
   if (workspace) {
     updateWorkspaceForRole(workspace, role, target.profile);
   }
@@ -582,19 +595,23 @@ app.patch('/api/users/:id', auth, requirePermission('manage_users'), async (req,
     category: 'account',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await withTransaction(async (tx) => {
+    await tx.upsertUser(target);
+    if (workspace) {
+      await tx.upsertWorkspace(target.username, workspace);
+    }
+    await tx.upsertWorkspace(req.user.username, req.workspace);
+  });
 
   return res.json({ user: sanitizeUser(target) });
 });
 
 app.delete('/api/users/:id', auth, requirePermission('manage_users'), async (req, res) => {
-  const index = req.db.users.findIndex((user) => user.id === req.params.id);
+  const target = await store.getUserById(req.params.id);
 
-  if (index === -1) {
+  if (!target) {
     return res.status(404).json({ message: 'That user could not be found.' });
   }
-
-  const target = req.db.users[index];
   const allowedRoles = manageableRolesFor(req.user);
 
   if (!allowedRoles.includes(target.role)) {
@@ -605,8 +622,6 @@ app.delete('/api/users/:id', auth, requirePermission('manage_users'), async (req
     return res.status(400).json({ message: 'You cannot delete the account you are currently using.' });
   }
 
-  req.db.users.splice(index, 1);
-  delete req.db.workspaces[target.username];
   appendActivity(req.workspace, {
     title: 'User removed',
     description: `${target.profile.name} (${target.username}) was removed from the workspace.`,
@@ -614,7 +629,10 @@ app.delete('/api/users/:id', auth, requirePermission('manage_users'), async (req
     category: 'account',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await withTransaction(async (tx) => {
+    await tx.deleteUserById(target.id);
+    await tx.upsertWorkspace(req.user.username, req.workspace);
+  });
 
   return res.json({ ok: true });
 });
@@ -655,7 +673,7 @@ app.post('/api/accounts', auth, requirePermission('view_company_hub'), async (re
     category: 'account',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await persistWorkspace(req.user.username, req.workspace);
   res.status(201).json(account);
 });
 
@@ -670,7 +688,7 @@ app.patch('/api/accounts/:id', auth, requirePermission('view_company_hub'), asyn
       category: 'account',
       channel: 'app'
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.json(account);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -690,7 +708,7 @@ app.delete('/api/accounts/:id', auth, requirePermission('view_company_hub'), asy
     category: 'account',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await persistWorkspace(req.user.username, req.workspace);
   return res.status(204).send();
 });
 
@@ -708,7 +726,7 @@ app.post('/api/activity', auth, requirePermission('view_activity'), async (req, 
     amount: req.body.amount
   };
   appendActivity(req.workspace, entry);
-  await writeDb(req.db);
+  await persistWorkspace(req.user.username, req.workspace);
   res.status(201).json(sortByTimestamp(req.workspace.activity)[0]);
 });
 
@@ -755,7 +773,7 @@ app.patch('/api/profile', auth, requirePermission('edit_profile'), async (req, r
     category: 'account',
     channel: 'app'
   });
-  await writeDb(req.db);
+  await persistUserAndWorkspace(req.user, req.workspace);
   res.json(req.user.profile);
 });
 
@@ -819,7 +837,7 @@ app.post('/api/actions/transfer', auth, requirePermission('make_transfer'), asyn
       channel: 'app',
       amount: value
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.json({ ok: true, message: `Transferred $${value.toFixed(2)} from ${source.name} to ${destination.name}.`, data: snapshot(req.user, req.workspace) });
   } catch (error) {
     appendActivity(req.workspace, {
@@ -829,7 +847,7 @@ app.post('/api/actions/transfer', auth, requirePermission('make_transfer'), asyn
       category: 'transfer',
       channel: 'app'
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.status(400).json({ ok: false, message: error.message });
   }
 });
@@ -886,7 +904,7 @@ app.post('/api/actions/pay-card', auth, requirePermission('pay_card'), async (re
       channel: 'app',
       amount: value
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.json({ ok: true, message: `Paid $${value.toFixed(2)} from ${funding.name} to ${card.name}.`, data: snapshot(req.user, req.workspace) });
   } catch (error) {
     appendActivity(req.workspace, {
@@ -896,7 +914,7 @@ app.post('/api/actions/pay-card', auth, requirePermission('pay_card'), async (re
       category: 'payment',
       channel: 'app'
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.status(400).json({ ok: false, message: error.message });
   }
 });
@@ -931,7 +949,7 @@ app.post('/api/actions/card/freeze', auth, requirePermission('freeze_card'), asy
       category: 'security',
       channel: 'app'
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.json({ ok: true, message: `${card.name} is now ${freeze ? 'frozen' : 'active again'}.`, data: snapshot(req.user, req.workspace) });
   } catch (error) {
     appendActivity(req.workspace, {
@@ -941,7 +959,7 @@ app.post('/api/actions/card/freeze', auth, requirePermission('freeze_card'), asy
       category: 'security',
       channel: 'app'
     });
-    await writeDb(req.db);
+    await persistWorkspace(req.user.username, req.workspace);
     res.status(400).json({ ok: false, message: error.message });
   }
 });
@@ -987,7 +1005,7 @@ app.post('/api/chat', auth, async (req, res) => {
   }
 
   appendChat(req.workspace, 'assistant', reply);
-  await writeDb(req.db);
+  await persistWorkspace(req.user.username, req.workspace);
   return res.json({ reply, chat: req.workspace.chat, activity: sortByTimestamp(req.workspace.activity) });
 });
 

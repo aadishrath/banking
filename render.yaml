@@ -3,7 +3,7 @@ services:
     name: banking-api
     env: node
     rootDir: .
-    buildCommand: npm install
+    buildCommand: npm install && npm run db:init
     startCommand: npm run start:api
     envVars:
       - key: DATABASE_URL
