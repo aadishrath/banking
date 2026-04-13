@@ -1,57 +1,76 @@
 # Banking App
 
-Full-stack Angular 19 banking app with a Postgres-backed Node/Express API, role-based banking workflows, and an interactive in-app assistant.
+Full-stack Angular 19 banking app with a Postgres-backed Express API, role-based feature controls, interactive chatbot actions, and deploy-ready hosting for Vercel plus Render.
 
-## What It Includes
-
-- Angular 19 frontend with standalone routes and a responsive banking UI
-- Express API with Postgres persistence
-- JWT auth plus server-side session validation
-- role-based access for `admin`, `customer`, and `company` users
-- profile editing with permission-aware controls
-- user management for admin and company roles
-- chatbot-assisted account actions
-- activity logging for auth events, chatbot actions, profile changes, and user-management events
-
-## Current Architecture
+## Stack
 
 - Frontend: Angular 19
-- Backend: Express
+- Backend: Express 5
 - Database: Postgres
-- Auth: JWT, session id binding, password hashing, failed-login lockout
+- Auth: JWT, server-side session validation, password hashing, lockout protection
+- Hosting target: Vercel for web, Render for API and Postgres
 
-## Backend State
+## Product Features
 
-The backend no longer uses the old file-backed JSON store at runtime.
+- role-based experiences for `admin`, `customer`, and `company`
+- login/logout activity auditing
+- dashboard, accounts, payments, company hub, profile, and user-management flows
+- chatbot that can answer questions and trigger supported banking actions
+- permission-aware UI and backend authorization checks
+- editable profile settings
+- admin/company user creation, editing, and removal
 
-- Postgres is the live source of truth
-- schema changes are managed through SQL migrations
-- demo data is inserted through a seed script
-- request handling now uses row-level Postgres reads/writes and transactions instead of full-database snapshot rewrites
+## Current Data Model
 
-The seed file at [server/data/db.json](C:/Users/adish/Downloads/myApps/portfolio/banking/server/data/db.json) is now used only for initial demo data.
+The backend no longer uses JSON blobs as its live runtime datastore.
+
+Normalized Postgres tables now back the app:
+
+- `users`
+- `workspaces`
+- `company_workspaces`
+- `accounts`
+- `account_transactions`
+- `activity_entries`
+- `chat_messages`
+
+The seed file at [server/data/db.json](/C:/Users/adish/Downloads/myApps/portfolio/banking/server/data/db.json) is now used only to bootstrap demo data through the seed and repair scripts.
+
+## Security Model
+
+The app currently includes:
+
+- hashed passwords using Node crypto
+- JWT auth
+- active `sessionId` binding between token and server session
+- server-side session expiry
+- failed login tracking
+- temporary lockouts after repeated failed login attempts
+- audit logging for auth and admin actions
+
+This is a strong demo setup, but it is still not a production-grade banking security implementation.
 
 ## User Roles
 
 ### Admin
 
 - full banking access
-- profile editing
-- permission editing
-- user create, edit, and remove
 - company hub access
+- profile editing
+- permission management
+- user create, edit, and delete
 
 ### Customer
 
-- reduced banking access
+- standard banking access
+- reduced permissions
 - no user-management access
-- no permission-management access
 
 ### Company
 
 - company workspace access
 - profile editing
-- user create, edit, and remove for company/customer roles
+- user create, edit, and delete for company/customer users
 - no admin-only permission-management features
 
 ## Demo Credentials
@@ -60,28 +79,48 @@ The seed file at [server/data/db.json](C:/Users/adish/Downloads/myApps/portfolio
 - `customer / customer2026`
 - `company / company2026`
 
-## Local Setup
+## Local Development
 
-1. Install PostgreSQL
-2. Create a database named `banking_app`
-3. Copy [.env.example](C:/Users/adish/Downloads/myApps/portfolio/banking/.env.example) to `.env`
-4. Set your Postgres connection string and JWT secret
-5. Install dependencies
-6. Run migrations
-7. Seed demo data
-8. Start the frontend and backend
+### 1. Install dependencies
 
 ```bash
 npm install
-npm run db:migrate
-npm run db:seed
-npm run dev
 ```
 
-Or use the combined initializer:
+### 2. Create a Postgres database
+
+Create a database named `banking_app`.
+
+### 3. Create your env file
+
+Copy [.env.example](/C:/Users/adish/Downloads/myApps/portfolio/banking/.env.example) to `.env` and set real values:
+
+```env
+DATABASE_URL=postgres://postgres:YOUR_PASSWORD@127.0.0.1:5432/banking_app
+JWT_SECRET=replace-with-a-strong-secret
+JWT_EXPIRES_IN=8h
+SESSION_TTL_MS=28800000
+MAX_FAILED_LOGINS=5
+LOCKOUT_WINDOW_MS=900000
+CLIENT_ORIGIN=http://localhost:4200
+```
+
+### 4. Run migrations and seed
 
 ```bash
 npm run db:init
+```
+
+Available database commands:
+
+- `npm run db:migrate`
+- `npm run db:seed`
+- `npm run db:repair-normalized`
+- `npm run db:init`
+
+### 5. Start the app
+
+```bash
 npm run dev
 ```
 
@@ -90,85 +129,126 @@ This starts:
 - frontend: `http://localhost:4200`
 - backend: `http://localhost:4000`
 
-## Environment Variables
+## API Notes
 
-- `DATABASE_URL`: Postgres connection string
-- `JWT_SECRET`: secret used to sign auth tokens
-- `JWT_EXPIRES_IN`: token lifetime, default `8h`
-- `SESSION_TTL_MS`: server session lifetime in milliseconds
-- `MAX_FAILED_LOGINS`: failed login attempts before temporary lockout
-- `LOCKOUT_WINDOW_MS`: lockout duration in milliseconds
-- `CLIENT_ORIGIN`: allowed frontend origin for CORS
+The frontend API client lives in [src/app/core/api.service.ts](/C:/Users/adish/Downloads/myApps/portfolio/banking/src/app/core/api.service.ts).
 
-See [.env.example](C:/Users/adish/Downloads/myApps/portfolio/banking/.env.example) for a working template.
+- local development uses `http://localhost:4000/api`
+- production expects requests to go to `/api`
 
-## Database Commands
+That means your Vercel frontend must rewrite `/api/*` requests to your Render backend URL.
 
-```bash
-npm run db:migrate
-npm run db:seed
-npm run db:init
+## Deployment Overview
+
+Production hosting should be split like this:
+
+- Vercel: Angular frontend
+- Render Web Service: Express API
+- Render Postgres: database
+
+## Deploy To Render
+
+### Option 1. Blueprint from `render.yaml`
+
+1. Push this repo to GitHub.
+2. In Render, choose `New +` -> `Blueprint`.
+3. Select this repo.
+4. Render will read [render.yaml](/C:/Users/adish/Downloads/myApps/portfolio/banking/render.yaml) and create:
+   - a web service named `banking-api`
+   - a Postgres database named `banking-postgres`
+5. After creation, open the web service and set or verify:
+   - `JWT_SECRET`
+   - `CLIENT_ORIGIN`
+6. Set `CLIENT_ORIGIN` to your final Vercel domain, for example `https://your-app.vercel.app`.
+7. Deploy the service.
+
+The Render API should expose endpoints like:
+
+- `https://your-render-service.onrender.com/api/health`
+- `https://your-render-service.onrender.com/api/auth/login`
+
+### Option 2. Manual Render setup
+
+1. Create a new Postgres database in Render.
+2. Create a new Web Service connected to this repo.
+3. Configure:
+   - Build Command: `npm install && npm run db:init`
+   - Start Command: `npm run start:api`
+4. Add env vars:
+   - `DATABASE_URL` = Render Postgres connection string
+   - `JWT_SECRET` = strong secret
+   - `CLIENT_ORIGIN` = your Vercel frontend URL
+5. Deploy.
+
+## Deploy To Vercel
+
+1. Create a new Vercel project from this same repo.
+2. Framework preset can stay as detected/static because [vercel.json](/C:/Users/adish/Downloads/myApps/portfolio/banking/vercel.json) already defines:
+   - build command
+   - output directory
+   - SPA fallback
+3. Before final deploy, update [vercel.json](/C:/Users/adish/Downloads/myApps/portfolio/banking/vercel.json) so `/api/*` rewrites to your Render backend.
+
+Use this pattern after you know your Render URL:
+
+```json
+{
+  "framework": null,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/angular-banking/browser",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://your-render-service.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
 ```
 
-Scripts:
+4. Commit that `vercel.json` change.
+5. Deploy to Vercel.
 
-- `db:migrate`: applies SQL migrations from [server/migrations](C:/Users/adish/Downloads/myApps/portfolio/banking/server/migrations)
-- `db:seed`: inserts demo data if the database is empty
-- `db:init`: runs both migration and seed steps
+## Make The App Interactive In Production
 
-## Useful API Capabilities
+For users to fully interact with the deployed app:
 
-The backend currently handles:
+1. Deploy Render first and get the live backend URL.
+2. Confirm Render API health at `/api/health`.
+3. Set Render `CLIENT_ORIGIN` to your Vercel domain.
+4. Update Vercel rewrites so `/api/*` forwards to Render.
+5. Deploy Vercel.
+6. Test login, dashboard data, chatbot actions, profile updates, and user management.
 
-- auth login, logout, and session bootstrap
-- permissions lookup and update
-- profile updates
-- user create, edit, list, and delete
-- account fetch and CRUD
-- activity fetch and creation
-- transfer, card payment, and freeze/unfreeze actions
-- chatbot requests
+If the Vercel frontend is live but `/api` is not rewritten to Render, the UI will load but login and data actions will fail.
 
-## Security Notes
+## Recommended Production Checks
 
-The app now includes:
+After deployment, verify:
 
-- hashed passwords using Node crypto
-- JWTs bound to active server-side session ids
-- server-side session expiry
-- failed-login tracking
-- temporary account lockout after repeated failures
-- activity logging for important auth and admin events
+- login works for all three demo roles
+- activity entries are being written
+- chatbot actions persist to Postgres
+- created users remain after refresh
+- profile edits persist
+- company data loads for the company role
+- Vercel requests to `/api/*` reach Render successfully
 
-This is much stronger than the earlier demo-only auth model, but it is still an app demo and not a fully hardened production banking platform.
+## Known Limits
 
-## Deployment
+- this is still a demo banking app, not a real banking platform
+- there is no refresh-token rotation yet
+- secrets management is environment-based, not enterprise-grade
+- no backend integration tests yet
 
-### Vercel
+## Key Paths
 
-- host the Angular frontend
-- build output is configured in [vercel.json](C:/Users/adish/Downloads/myApps/portfolio/banking/vercel.json)
-
-### Render
-
-- host the Express API
-- provision the Postgres database
-- deployment is configured in [render.yaml](C:/Users/adish/Downloads/myApps/portfolio/banking/render.yaml)
-- Render build runs `npm install && npm run db:init`
-
-Set these production values on Render:
-
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `CLIENT_ORIGIN`
-
-Set `CLIENT_ORIGIN` to your deployed Vercel frontend URL.
-
-## Suggested Next Steps
-
-Strong next improvements from here:
-
-- normalize `accounts`, `activity`, and `chat` into dedicated Postgres tables
-- add inline validation and confirmations in user-management flows
-- add refresh-token support or rotating sessions
-- add backend tests for auth and data-layer behavior
+- frontend API client: [src/app/core/api.service.ts](/C:/Users/adish/Downloads/myApps/portfolio/banking/src/app/core/api.service.ts)
+- backend entry: [server/index.js](/C:/Users/adish/Downloads/myApps/portfolio/banking/server/index.js)
+- Postgres layer: [server/lib/db.js](/C:/Users/adish/Downloads/myApps/portfolio/banking/server/lib/db.js)
+- migrations: [server/migrations](/C:/Users/adish/Downloads/myApps/portfolio/banking/server/migrations)
+- Render config: [render.yaml](/C:/Users/adish/Downloads/myApps/portfolio/banking/render.yaml)
+- Vercel config: [vercel.json](/C:/Users/adish/Downloads/myApps/portfolio/banking/vercel.json)
