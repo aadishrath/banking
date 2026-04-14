@@ -2,12 +2,11 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/angular-banking/browser",
-  "routes": [
-    {
-      "handle": "filesystem"
-    }
-  ],
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://banking-jmkt.onrender.com/api/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
