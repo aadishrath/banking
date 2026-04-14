@@ -3,7 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 const API_BASE_URL =
-  globalThis.location?.hostname === 'localhost' ? 'http://localhost:4000/api' : '/api';
+  globalThis.location?.hostname === 'localhost'
+    ? 'http://localhost:4000/api'
+    : 'https://banking-jmkt.onrender.com/api';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {

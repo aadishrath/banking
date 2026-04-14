@@ -134,9 +134,9 @@ This starts:
 The frontend API client lives in [src/app/core/api.service.ts](/C:/Users/adish/Downloads/myApps/portfolio/banking/src/app/core/api.service.ts).
 
 - local development uses `http://localhost:4000/api`
-- production expects requests to go to `/api`
+- production uses the deployed Render backend directly: `https://banking-jmkt.onrender.com/api`
 
-That means your Vercel frontend must rewrite `/api/*` requests to your Render backend URL.
+This avoids relying on Vercel proxy rewrites for API requests.
 
 ## Deployment Overview
 
@@ -187,30 +187,9 @@ The Render API should expose endpoints like:
    - build command
    - output directory
    - SPA fallback
-3. Before final deploy, update [vercel.json](/C:/Users/adish/Downloads/myApps/portfolio/banking/vercel.json) so `/api/*` rewrites to your Render backend.
+3. Deploy the project.
 
-Use this pattern after you know your Render URL:
-
-```json
-{
-  "framework": null,
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist/angular-banking/browser",
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://your-render-service.onrender.com/api/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
-  ]
-}
-```
-
-4. Commit that `vercel.json` change.
-5. Deploy to Vercel.
+No Vercel API rewrite is required in the current setup because the production frontend calls the Render backend directly.
 
 ## Make The App Interactive In Production
 
@@ -219,11 +198,8 @@ For users to fully interact with the deployed app:
 1. Deploy Render first and get the live backend URL.
 2. Confirm Render API health at `/api/health`.
 3. Set Render `CLIENT_ORIGIN` to your Vercel domain.
-4. Update Vercel rewrites so `/api/*` forwards to Render.
-5. Deploy Vercel.
-6. Test login, dashboard data, chatbot actions, profile updates, and user management.
-
-If the Vercel frontend is live but `/api` is not rewritten to Render, the UI will load but login and data actions will fail.
+4. Deploy Vercel.
+5. Test login, dashboard data, chatbot actions, profile updates, and user management.
 
 ## Recommended Production Checks
 
@@ -235,7 +211,7 @@ After deployment, verify:
 - created users remain after refresh
 - profile edits persist
 - company data loads for the company role
-- Vercel requests to `/api/*` reach Render successfully
+- the frontend can reach `https://banking-jmkt.onrender.com/api` successfully
 
 ## Known Limits
 
