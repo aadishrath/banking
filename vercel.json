@@ -4,8 +4,8 @@
   "outputDirectory": "dist/angular-banking/browser",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://banking-jmkt.onrender.com/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://banking-jmkt.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",
